@@ -85,13 +85,13 @@ extern unsigned char  ModeFlag;
 
 //private:
   //SPISettings _spiSettings;
-  int _ss;
-  int _reset;
-  int _dio0;
-  int _frequency;
-  int _packetIndex;
-  int _implicitHeaderMode;
-  void (*_onReceive)(int);
+  extern int _ss;
+  extern int _reset;
+  extern int _dio0;
+  extern int _frequency;
+  extern int _packetIndex;
+  extern int _implicitHeaderMode;
+  extern void (*_onReceive)(int);
 //};
 
 //extern LoRaClass LoRa;

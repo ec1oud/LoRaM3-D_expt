@@ -1,4 +1,5 @@
 #include <LoRa.h>
+#include <string.h>
 
 // registers
 #define REG_FIFO                 0x00
@@ -280,9 +281,9 @@ size_t LoRa_write(uint8_t byte)
 {
   return writebfr(&byte, sizeof(byte));
 }
-size_t LoRa_print(char* str){
-
-	return LoRa_writebfr(&str, sizeof(str));
+size_t LoRa_print(char* str)
+{
+	return LoRa_writebfr((const uint8_t*)str, strlen(str));
 }
 int LoRa_available()
 {
@@ -617,7 +618,7 @@ const u8  testData[] = {"HPD 11/12/13 1234567890"};
 u8 test_RxData[32];
 u8 test_TxData[32];
 unsigned short  Tx_Data  = 0xD000;
-unsigned short  Rx_Data  = 0;
+uint8_t  Rx_Data  = 0;
 unsigned char HPD1X_Para = 0x00;
 unsigned char  KeyValue;
 unsigned char  FuntionMode;
@@ -656,15 +657,21 @@ uint8_t spiRead8(uint8_t dat){
 
 	dat = dat & 0x7f;
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); //digitalWrite(_ss, LOW);
-    HAL_SPI_TransmitReceive(&hspi1, (unsigned char *) &dat, (unsigned char *) &Rx_Data, 1,50);
+    uint8_t temp;
+    HAL_SPI_TransmitReceive(&hspi1, &dat, &temp, 1,50);
+    Rx_Data = temp;
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET); //digitalWrite(_ss, HIGH);
     return Rx_Data;
 }
 uint8_t spiTransfer(uint8_t address, uint8_t value){
 
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); //digitalWrite(_ss, LOW);
-    HAL_SPI_TransmitReceive(&hspi1, (unsigned char *) &address, (unsigned char *) &Rx_Data, 1,50);
-    HAL_SPI_TransmitReceive(&hspi1, (unsigned char *) &value, (unsigned char *) &Rx_Data, 1,50);
+    uint8_t temp1;
+    HAL_SPI_TransmitReceive(&hspi1, &address, &temp1, 1,50);
+    Rx_Data = temp1;
+    uint8_t temp2;
+    HAL_SPI_TransmitReceive(&hspi1, &value, &temp2, 1,50);
+    Rx_Data = temp2;
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET); //digitalWrite(_ss, HIGH);
     return Rx_Data;
 }
@@ -673,24 +680,35 @@ uint8_t spiWrite16(uint16_t data){
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); //digitalWrite(_ss, LOW);
 	u8 lo = (data & 0xff);
 	u8 hi = ((data>>8) & 0xff) | 0x80;
-    HAL_SPI_TransmitReceive(&hspi1, (unsigned char *) &hi, (unsigned char *) &Rx_Data, 1,50);
-    HAL_SPI_TransmitReceive(&hspi1, (unsigned char *) &lo, (unsigned char *) &Rx_Data, 1,50);
+    uint8_t temp3;
+    HAL_SPI_TransmitReceive(&hspi1, &hi, &temp3, 1,50);
+    Rx_Data = temp3;
+    uint8_t temp4;
+    HAL_SPI_TransmitReceive(&hspi1, &lo, &temp4, 1,50);
+    Rx_Data = temp4;
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET); //digitalWrite(_ss, HIGH);
     return Rx_Data;
 }
 uint8_t spiWriteBuf(uint8_t addr,uint8_t* data,uint16_t len){
 
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); //digitalWrite(_ss, LOW);
-    HAL_SPI_TransmitReceive(&hspi1, (unsigned char *) (addr|0x80) , (unsigned char *) &Rx_Data, 1,50);
-    HAL_SPI_TransmitReceive(&hspi1, (unsigned char *) (data) , (unsigned char *) &Rx_Data, len,50);
+    uint8_t addr_write = addr | 0x80;
+    uint8_t temp5;
+    HAL_SPI_TransmitReceive(&hspi1, &addr_write, &temp5, 1,50);
+    Rx_Data = temp5;
+    uint8_t temp6[len];
+    HAL_SPI_TransmitReceive(&hspi1, data, temp6, len,50);
+    Rx_Data = temp6[0]; // Only return first byte
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET); //digitalWrite(_ss, HIGH);
     return Rx_Data;
 }
 uint8_t spiReadBuf(uint8_t addr,uint8_t* data,uint16_t len){
 
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET); //digitalWrite(_ss, LOW);
-    HAL_SPI_TransmitReceive(&hspi1, (unsigned char *) (addr) , (unsigned char *) &Rx_Data, 1,50);
-    HAL_SPI_TransmitReceive(&hspi1, (unsigned char *) (0) , (unsigned char *) &test_RxData, len,50);
+    uint8_t temp7;
+    HAL_SPI_TransmitReceive(&hspi1, &addr, &temp7, 1,50);
+    Rx_Data = temp7;
+    HAL_SPI_TransmitReceive(&hspi1, NULL, data, len,50);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET); //digitalWrite(_ss, HIGH);
     return Rx_Data;
 }

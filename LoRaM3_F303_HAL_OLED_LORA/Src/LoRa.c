@@ -1,6 +1,15 @@
 #include <LoRa.h>
 #include <string.h>
 
+// Global variable definitions to resolve multiple definition errors
+int _ss;
+int _reset;
+int _dio0;
+int _frequency;
+int _packetIndex;
+int _implicitHeaderMode;
+void (*_onReceive)(int);
+
 // registers
 #define REG_FIFO                 0x00
 #define REG_OP_MODE              0x01

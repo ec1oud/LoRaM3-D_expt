@@ -290,7 +290,7 @@ size_t LoRa_write(uint8_t byte)
 {
   return writebfr(&byte, sizeof(byte));
 }
-size_t LoRa_print(char* str)
+size_t LoRa_print(const char* str)
 {
 	return LoRa_writebfr((const uint8_t*)str, strlen(str));
 }

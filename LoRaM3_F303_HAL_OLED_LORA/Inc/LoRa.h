@@ -43,7 +43,7 @@ extern unsigned char  ModeFlag;
   int  read();
   int  peek();
   void flush();
-  size_t LoRa_print(char* str);
+  size_t LoRa_print(const char* str);
   void LoRa_onReceive(void(*callback)(int));
 
   void LoRa_receive(int size);

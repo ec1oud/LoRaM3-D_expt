@@ -226,7 +226,7 @@ void reset_oled(){
 	HAL_Delay(50);
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
 }
-void printCDC(char* str){
+void printCDC(const char* str){
 
 	CDC_Transmit_FS((uint8_t*)str,strlen((const char*)str));
 }
@@ -266,13 +266,17 @@ int main(void){
   LoRa_setCodingRate4(5);
   LoRa_explicitHeaderMode();
 
+	const char *test_packet_str = "test packet";
+	char buf[32];
+	sprintf(buf, "test packen len %d\n", strlen(test_packet_str));
+
   while (1){
 	  LoRa_beginPacket(0);
-	  LoRa_print("test packet");
+	  LoRa_print(test_packet_str);
 	  LoRa_endPacket();
-	  printCDC("Debug via USB CDC");
+	  printCDC(buf);
 	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	  //HAL_Delay(100);
+	  HAL_Delay(1000);
   }
 }
 

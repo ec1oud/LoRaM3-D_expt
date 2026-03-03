@@ -227,6 +227,9 @@ int main(void)
 	ssd1306_wstr("LoRaM3 F303", 23, 8);
 	ssd1306_wstr("OLED init pass", 0, 28);
 
+	// LoRaWAN public sync word must be set _before_ LoRa_begin
+	// (but so far it's the same as the default anyway: this makes no difference)
+	LoRa_setSyncWord(0x34);
 	if (!LoRa_begin(BAND, PABOOST)) {
 		printCDC("LoRa init failed");
 		ssd1306_wstr("LoRa init fail", 0, 38);
@@ -237,11 +240,11 @@ int main(void)
 		ssd1306_wstr("Self test PASS", 0, 48);
 	}
 
-	// explicit init (maybe unnecessary if it matches defaults)
+	// explicit init (mostly matches defaults, but coding rate is different)
 	LoRa_setSpreadingFactor(7);
 	LoRa_setSignalBandwidth(125000);
-	LoRa_setCodingRate4(5);
-	LoRa_explicitHeaderMode();
+	LoRa_setCodingRate4(4);  // CR 4/5
+	LoRa_enableCrc();         // CRC enabled
 
 	const char* test_packet_str = "test packet";
 	char buf[64];
@@ -249,9 +252,12 @@ int main(void)
 
 	LoRa_onReceive(&onReceive);
 
+	// Enter receive mode
+	LoRa_receive(0);
+
 	while (1) {
-		// Check for received packets first
-		int packetLen = LoRa_parsePacket(0);  // Explicit header mode
+		// Check for received packets
+		int packetLen = LoRa_parsePacket(0);
 		if (packetLen > 0) {
 			// We received a packet - process it
 			int rssi = LoRa_packetRssi();
@@ -268,17 +274,21 @@ int main(void)
 			printCDC(rx_buf);
 
 			ssd1306_wstr("RX!", 0, 38);
-			HAL_Delay(100);
+			HAL_Delay(1000);
 		}
 		sprintf(buf, "received packen len %d available %d\n", packetLen, LoRa_available());
 		printCDC(buf);
 
-		// Send a periodic packet
-		LoRa_beginPacket(0);
-		LoRa_print(test_packet_str);
-		LoRa_endPacket();
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); // LED
-		HAL_Delay(1000);
+	    // Send a periodic packet
+	    LoRa_beginPacket(0);
+	    LoRa_print(test_packet_str);
+	    LoRa_endPacket();
+	    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); // LED
+
+	    // Return to continuous receive mode immediately after transmission
+	    LoRa_receive(0);
+
+	    HAL_Delay(1000);
 	}
 }
 

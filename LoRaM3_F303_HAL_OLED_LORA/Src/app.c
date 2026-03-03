@@ -201,6 +201,13 @@ void printCDC(const char* str)
 	CDC_Transmit_FS((uint8_t*)str, strlen((const char*)str));
 }
 
+void onReceive(int sth)
+{
+	char buf[32];
+	sprintf(buf, "onReceive %d\n", sth);
+	printCDC(buf);
+}
+
 int main(void)
 {
 	HAL_Init();
@@ -240,11 +247,14 @@ int main(void)
 	char buf[32];
 	sprintf(buf, "test packen len %d\n", strlen(test_packet_str));
 
+	LoRa_onReceive(&onReceive);
+
 	while (1) {
+		LoRa_receive(16);
 		LoRa_beginPacket(0);
 		LoRa_print(test_packet_str);
 		LoRa_endPacket();
-		printCDC(buf);
+		// printCDC(buf);
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		HAL_Delay(1000);
 	}

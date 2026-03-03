@@ -14,7 +14,7 @@ TIM_HandleTypeDef htim1;
 #define SS      	PA4
 #define RST     	PA2
 #define DI0     	PA3
-#define BAND    	868E6
+#define BAND    	868100000
 #define PABOOST 	1
 
 void SystemClock_Config(void){

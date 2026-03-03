@@ -39,10 +39,10 @@ extern unsigned char  ModeFlag;
   size_t writebfr(const uint8_t *buffer, size_t size);
 
   // from Stream
-  int  available();
-  int  read();
-  int  peek();
-  void flush();
+  int  LoRa_available();
+  int  LoRa_read();
+  int  LoRa_peek();
+  void LoRa_flush();
   size_t LoRa_print(const char* str);
   void LoRa_onReceive(void(*callback)(int));
 

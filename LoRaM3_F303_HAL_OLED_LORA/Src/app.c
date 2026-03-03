@@ -244,18 +244,40 @@ int main(void)
 	LoRa_explicitHeaderMode();
 
 	const char* test_packet_str = "test packet";
-	char buf[32];
-	sprintf(buf, "test packen len %d\n", strlen(test_packet_str));
+	char buf[64];
+	// sprintf(buf, "test packen len %d\n", strlen(test_packet_str));
 
 	LoRa_onReceive(&onReceive);
 
 	while (1) {
-		LoRa_receive(16);
+		// Check for received packets first
+		int packetLen = LoRa_parsePacket(0);  // Explicit header mode
+		if (packetLen > 0) {
+			// We received a packet - process it
+			int rssi = LoRa_packetRssi();
+			float snr = LoRa_packetSnr();
+			printCDC("RX!\n");
+
+			// Read and print the packet data
+			char rx_buf[32];
+			int idx = 0;
+			while (LoRa_available() && idx < 30) {
+				rx_buf[idx++] = LoRa_read();
+			}
+			rx_buf[idx] = '\0';
+			printCDC(rx_buf);
+
+			ssd1306_wstr("RX!", 0, 38);
+			HAL_Delay(100);
+		}
+		sprintf(buf, "received packen len %d available %d\n", packetLen, LoRa_available());
+		printCDC(buf);
+
+		// Send a periodic packet
 		LoRa_beginPacket(0);
 		LoRa_print(test_packet_str);
 		LoRa_endPacket();
-		// printCDC(buf);
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); // LED
 		HAL_Delay(1000);
 	}
 }

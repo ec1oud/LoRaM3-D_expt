@@ -225,7 +225,7 @@ int LoRa_endPacket()
   LoRa_writeRegister(REG_IRQ_FLAGS, IRQ_TX_DONE_MASK);
   return 1;
 }
-int parsePacket(int size)
+int LoRa_parsePacket(int size)
 {
   int packetLength = 0;
   int irqFlags = LoRa_readRegister(REG_IRQ_FLAGS);
@@ -263,7 +263,7 @@ int parsePacket(int size)
   }
   return packetLength;
 }
-int packetRssi()
+int LoRa_packetRssi()
 {
   return (LoRa_readRegister(REG_PKT_RSSI_VALUE) - (_frequency < 868E6 ? 164 : 157));
 }
@@ -300,13 +300,13 @@ int LoRa_available()
 }
 int LoRa_read()
 {
-  if (!available()) { return -1; }
+  if (!LoRa_available()) { return -1; }
   _packetIndex++;
   return LoRa_readRegister(REG_FIFO);
 }
 int LoRa_peek()
 {
-  if (!available()) { return -1; }
+  if (!LoRa_available()) { return -1; }
   // store current FIFO address
   int currentAddress = LoRa_readRegister(REG_FIFO_ADDR_PTR);
   // read

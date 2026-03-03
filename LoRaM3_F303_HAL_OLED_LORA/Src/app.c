@@ -23,7 +23,7 @@ void SystemClock_Config(void){
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -38,7 +38,7 @@ void SystemClock_Config(void){
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -62,11 +62,11 @@ void SystemClock_Config(void){
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure the Systick interrupt time 
+    /**Configure the Systick interrupt time
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
-    /**Configure the Systick 
+    /**Configure the Systick
     */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
@@ -90,14 +90,14 @@ static void MX_I2C1_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure Analogue filter 
+    /**Configure Analogue filter
     */
   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure Digital filter 
+    /**Configure Digital filter
     */
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
   {
@@ -260,6 +260,12 @@ int main(void){
 	  ssd1306_wstr("Self test PASS",0,48);
   }
 
+  // explicit init (maybe unnecessary if it matches defaults)
+  LoRa_setSpreadingFactor(7);
+  LoRa_setSignalBandwidth(125000);
+  LoRa_setCodingRate4(5);
+  LoRa_explicitHeaderMode();
+
   while (1){
 	  LoRa_beginPacket(0);
 	  LoRa_print("test packet");
@@ -282,5 +288,3 @@ void _Error_Handler(char * file, int line)
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t* file, uint32_t line){}
 #endif
-
-
